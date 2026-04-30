@@ -137,7 +137,7 @@ const RankingReveal = ({
         style={{
           width: "260px",
           height: "260px",
-          borderRadius: "12px",
+          borderRadius: "10px",
           objectFit: "cover",
           boxShadow: "0 24px 80px rgba(0,0,0,0.75)",
           marginBottom: "24px",
