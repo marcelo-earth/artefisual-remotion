@@ -34,7 +34,7 @@ const IntroCard = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "80px 72px",
+        padding: "88px 72px",
       }}
     >
       <div
@@ -91,7 +91,7 @@ const SongReveal = ({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "80px 72px",
+        padding: "88px 72px",
       }}
     >
       <Img
