@@ -1,0 +1,37 @@
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+.btn {
+  @apply transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 focus:ring-offset-transparent;
+}
+
+[data-theme="light"]
+.btn {
+  @apply hover:bg-black hover:text-white focus:bg-black focus:text-white;
+}
+
+[data-theme="dark"]
+.btn {
+  @apply hover:bg-white hover:text-black focus:bg-white focus:text-black;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, rgb(161, 98, 219), rgb(99, 179, 237), rgb(255, 107, 193));
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  z-index: 1;
+}
