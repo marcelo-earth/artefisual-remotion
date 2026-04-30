@@ -1,0 +1,20 @@
+---
+export interface Props {
+  type: "Organization" | "WebSite" | "WebApplication" | "Course" | "VideoObject" | "Article" | "FAQPage" | "BreadcrumbList" | "Service" | "Product" | "Event" | "Review" | "BlogPosting" | "WebPage" | "SiteNavigationElement" | "ItemList";
+  data: any;
+}
+
+const { type, data } = Astro.props;
+
+const generateSchema = () => {
+  const baseSchema = {
+    "@context": "https://schema.org",
+    "@type": type,
+    ...data
+  };
+
+  return JSON.stringify(baseSchema, null, 0);
+};
+---
+
+<script type="application/ld+json" set:html={generateSchema()} />
