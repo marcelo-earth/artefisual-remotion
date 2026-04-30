@@ -1,0 +1,15 @@
+<script is:inline>
+if (location.hostname.includes("artedeprogramar.org") && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+  location.replace("https://artefisual.com" + location.pathname + location.search + location.hash);
+}
+
+// Recupera ante chunks obsoletos tras un nuevo deploy: si un import dinámico
+// falla porque su hash ya no existe, recarga una vez para traer el HTML nuevo.
+window.addEventListener("vite:preloadError", () => {
+  const KEY = "vite-preload-reload-at";
+  const last = Number(sessionStorage.getItem(KEY) || 0);
+  if (Date.now() - last < 10000) return;
+  sessionStorage.setItem(KEY, String(Date.now()));
+  location.reload();
+});
+</script>
