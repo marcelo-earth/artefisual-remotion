@@ -1,0 +1,9 @@
+@import "global.css";
+@import "theme.css";
+
+/* Invierte logos/marcas según el tema activo (data-theme), no según la
+   preferencia del SO. Necesario en páginas que fuerzan el tema con
+   data-theme="dark" donde el `dark:` de Tailwind (estrategia media) no aplica. */
+[data-theme="dark"] .invert-on-dark {
+  filter: invert(1);
+}
