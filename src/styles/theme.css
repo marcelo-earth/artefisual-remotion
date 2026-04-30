@@ -1,0 +1,25 @@
+/**
+ * Theme colors for light and dark mode
+ */
+
+[data-theme="light"] {
+  --color-primary: #0369A1;
+  --color-secondary: theme("colors.monokai.pink");
+  --color-text: theme("colors.neutral.900");
+  --color-text-offset: theme("colors.neutral.600");
+  --color-background: theme("colors.white");
+  --color-background-offset: theme("colors.neutral.50");
+  --color-border: theme("colors.neutral.900" / 10%);
+  --filter-brightness: 0;
+}
+
+[data-theme="dark"] {
+  --color-primary: theme("colors.monokai.purple");
+  --color-secondary: theme("colors.monokai.pink" / 150%);
+  --color-text: theme("colors.neutral.50");
+  --color-text-offset: theme("colors.neutral.300");
+  --color-background: #131313;
+  --color-background-offset: theme("colors.neutral.800");
+  --color-border: theme("colors.neutral.50" / 10%);
+  --filter-brightness: 1;
+}
