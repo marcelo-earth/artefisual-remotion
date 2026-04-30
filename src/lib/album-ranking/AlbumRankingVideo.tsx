@@ -174,7 +174,7 @@ const RankingReveal = ({
         {artistName}
       </div>
 
-      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "22px" }}>
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
         {songs.map((song, i) => {
           const delay = 20 + i * 9;
           const songEntrance = interpolate(frame, [delay, delay + 14], [0, 1], {
