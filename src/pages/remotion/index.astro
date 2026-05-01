@@ -1,0 +1,345 @@
+---
+import { Icon } from "astro-icon/components";
+import DomainRedirect from "~/components/domain-redirect.astro";
+import StructuredData from "~/components/structured-data.astro";
+import artefisualIcon from "~/assets/artefisual-icon.svg";
+import { funTests } from "~/data/fun-tests";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "~/styles/index.css";
+
+const title = "Tests interactivos de música y personalidad | Artefisual";
+const description =
+  "Tests interactivos de música y personalidad que generan un video vertical para compartir, renderizado en tu navegador. Tus datos nunca salen de tu dispositivo.";
+const canonical = new URL("/remotion", Astro.site).href;
+
+const faqs = [
+  {
+    q: "¿Qué es Remotion?",
+    a: "Remotion es una librería para crear videos programáticamente con React. En lugar de editar en un software de video, escribes componentes de React que se renderizan frame por frame para producir un archivo .mp4.",
+  },
+  {
+    q: "¿Cómo se genera mi video?",
+    a: "El video se renderiza directamente en tu navegador con @remotion/web-renderer. Tus respuestas, fotos o canciones nunca se suben a un servidor: todo el procesamiento ocurre en tu dispositivo. Suele tardar entre 5 y 30 segundos según el largo del video.",
+  },
+  {
+    q: "¿Mis datos se guardan en algún servidor?",
+    a: "No. Como el render es client-side, nada de lo que eliges sale de tu navegador. No almacenamos tus respuestas, fotos ni selecciones de música.",
+  },
+  {
+    q: "¿En qué formato descargo el video?",
+    a: "En .mp4 vertical 9:16, optimizado para historias y reels de Instagram, TikTok y estados de WhatsApp.",
+  },
+  {
+    q: "¿De dónde sale la música y las portadas?",
+    a: "De la API pública de búsqueda de iTunes de Apple, que entrega un fragmento de 30 segundos y la portada del álbum. Usamos solo ese intro dentro del video.",
+  },
+  {
+    q: "¿Tiene algún costo?",
+    a: "No, todos los tests y la generación de videos son gratis.",
+  },
+  {
+    q: "¿Puedo usar este código en mi propio proyecto?",
+    a: "Sí. Remotion es open source y todo el código de esta página estará disponible en abierto para que lo estudies o lo reutilices. Si quieres aprender a crear videos con código, tenemos un taller de Motion Graphics con Remotion en Artefisual.",
+  },
+];
+---
+
+<!DOCTYPE html>
+<html lang="es" class="h-full" data-theme="dark">
+  <head>
+    <DomainRedirect />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL("/social.png", Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <StructuredData
+      type="WebApplication"
+      data={{
+        name: "Tests interactivos de Artefisual",
+        url: canonical,
+        applicationCategory: "EntertainmentApplication",
+        operatingSystem: "Web",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        description,
+        publisher: { "@type": "Organization", name: "Artefisual", url: "https://artefisual.com/" },
+      }}
+    />
+    <StructuredData
+      type="FAQPage"
+      data={{
+        mainEntity: faqs.map(({ q, a }) => ({
+          "@type": "Question",
+          name: q,
+          acceptedAnswer: { "@type": "Answer", text: a },
+        })),
+      }}
+    />
+    <script is:inline>
+      const theme = localStorage.getItem("theme") || "system";
+      if (theme === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = prefersDark ? "dark" : "light";
+      } else {
+        document.documentElement.dataset.theme = theme;
+      }
+    </script>
+    <style>
+      [data-theme="dark"] { color-scheme: dark; }
+      [data-theme="light"] { color-scheme: light; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-default text-default font-sans">
+    <header class="fixed top-0 inset-x-0 z-50 border-b border-offset bg-default/97 backdrop-blur-md">
+      <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2" aria-label="Ir al inicio de Artefisual">
+          <img src={artefisualIcon.src} alt="Logo de Artefisual" class="w-[36px] object-cover invert-on-dark" width="36" height="36" />
+          <Icon name="artefisual" class="h-6 w-auto invert-on-dark select-none" aria-hidden="true" />
+        </a>
+        <button
+          id="profile-btn"
+          type="button"
+          aria-label="Cambiar tu nombre"
+          class="flex items-center gap-2 rounded-full border border-offset px-3 py-1.5 text-base text-offset hover:bg-offset/40 hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <Icon name="tabler:user" class="size-4 shrink-0" aria-hidden="true" />
+          <span id="profile-label">Tu nombre</span>
+        </button>
+      </div>
+    </header>
+
+    <dialog
+      id="name-dialog"
+      class="m-auto w-full max-w-sm rounded-2xl border border-offset bg-default p-6 text-default shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+    >
+      <h2 class="font-bold text-lg mb-1">¿Cómo te llamas?</h2>
+      <p class="text-base text-offset mb-4">Algunos videos usarán tu nombre.</p>
+      <form id="name-form" method="dialog">
+        <input
+          id="name-input"
+          type="text"
+          placeholder="Escribe tu nombre..."
+          maxlength="30"
+          autocomplete="given-name"
+          class="w-full rounded-xl border border-offset bg-offset/30 px-4 py-3 text-base text-default placeholder:text-offset/60 focus:outline-none focus:ring-2 focus:ring-primary transition mb-4"
+        />
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            id="name-cancel"
+            class="px-4 py-2 rounded-lg border border-offset text-base text-offset hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-lg bg-primary text-white text-base font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      const tap = new Audio("/tap_sound.mp3");
+      tap.volume = 0.5;
+      document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("a, button, summary, [role='button']")) {
+          tap.currentTime = 0;
+          tap.play().catch(() => {});
+        }
+      });
+    </script>
+
+    <script>
+      const KEY = "remotion:user-name";
+      const btn = document.getElementById("profile-btn")!;
+      const label = document.getElementById("profile-label")!;
+      const dialog = document.getElementById("name-dialog") as HTMLDialogElement;
+      const input = document.getElementById("name-input") as HTMLInputElement;
+      const cancelBtn = document.getElementById("name-cancel")!;
+      const form = document.getElementById("name-form")!;
+
+      function updateLabel(name: string) {
+        label.textContent = name || "Tu nombre";
+      }
+
+      updateLabel(localStorage.getItem(KEY) || "");
+
+      btn.addEventListener("click", () => {
+        input.value = localStorage.getItem(KEY) || "";
+        dialog.showModal();
+        requestAnimationFrame(() => input.focus());
+      });
+
+      cancelBtn.addEventListener("click", () => dialog.close());
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = input.value.trim();
+        if (name) {
+          localStorage.setItem(KEY, name);
+        } else {
+          localStorage.removeItem(KEY);
+        }
+        updateLabel(name);
+        dialog.close();
+      });
+
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+    </script>
+
+    <main class="max-w-2xl mx-auto px-4 pt-24 pb-10">
+      <h1 class="mb-1 font-bold text-default text-2xl">Tests</h1>
+      <p class="text-offset text-base mb-6">Mini quizzes para pasar el rato y descubrir tu resultado en video.</p>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <a
+          href="/remotion/polaroid-photo"
+          class="flex items-start gap-4 rounded-xl border border-offset px-5 py-4 hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <span class="text-3xl shrink-0" aria-hidden="true">📸</span>
+          <span class="min-w-0">
+            <span class="block font-semibold text-default text-lg">Mi polaroid</span>
+            <span class="block text-base text-offset mt-0.5">Toma una foto y genera tu video polaroid animado.</span>
+          </span>
+          <Icon name="tabler:chevron-right" class="ml-auto mt-1 size-5 text-offset shrink-0" aria-hidden="true" />
+        </a>
+        <a
+          href="/remotion/favorite-song"
+          class="flex items-start gap-4 rounded-xl border border-offset px-5 py-4 hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <span class="text-3xl shrink-0" aria-hidden="true">🎧</span>
+          <span class="min-w-0">
+            <span class="block font-semibold text-default text-lg">Mi canción favorita</span>
+            <span class="block text-base text-offset mt-0.5">Genera un video con la canción que no puedes dejar de escuchar.</span>
+          </span>
+          <Icon name="tabler:chevron-right" class="ml-auto mt-1 size-5 text-offset shrink-0" aria-hidden="true" />
+        </a>
+        <a
+          href="/remotion/artist-ranking"
+          class="flex items-start gap-4 rounded-xl border border-offset px-5 py-4 hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <span class="text-3xl shrink-0" aria-hidden="true">🎤</span>
+          <span class="min-w-0">
+            <span class="block font-semibold text-default text-lg">Mi top 5 de artista</span>
+            <span class="block text-base text-offset mt-0.5">Rankea tus 5 canciones favoritas de un artista.</span>
+          </span>
+          <Icon name="tabler:chevron-right" class="ml-auto mt-1 size-5 text-offset shrink-0" aria-hidden="true" />
+        </a>
+        <a
+          href="/remotion/album-ranking"
+          class="flex items-start gap-4 rounded-xl border border-offset px-5 py-4 hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <span class="text-3xl shrink-0" aria-hidden="true">🎵</span>
+          <span class="min-w-0">
+            <span class="block font-semibold text-default text-lg">Rankea tu álbum favorito</span>
+            <span class="block text-base text-offset mt-0.5">Elige 5 canciones y deja que las comparaciones las ordenen.</span>
+          </span>
+          <Icon name="tabler:chevron-right" class="ml-auto mt-1 size-5 text-offset shrink-0" aria-hidden="true" />
+        </a>
+        {funTests.map((test) => (
+          <a
+            href={`/remotion/${test.slug}`}
+            class="flex items-start gap-4 rounded-xl border border-offset px-5 py-4 hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            <span class="text-3xl shrink-0" aria-hidden="true">{test.emoji}</span>
+            <span class="min-w-0">
+              <span class="block font-semibold text-default text-lg">{test.title}</span>
+              <span class="block text-base text-offset mt-0.5">{test.shortDescription}</span>
+              <span class="block text-base text-offset mt-1">{test.questions.length} preguntas</span>
+            </span>
+            <Icon name="tabler:chevron-right" class="ml-auto mt-1 size-5 text-offset shrink-0" aria-hidden="true" />
+          </a>
+        ))}
+      </div>
+
+      <section class="mt-14">
+        <h2 class="font-bold text-default text-xl mb-1">¿Cómo funciona?</h2>
+        <p class="text-offset text-base mb-6">Qué es esto, qué hace cada test y cómo está hecho.</p>
+
+        <div class="flex flex-col gap-5 text-base text-offset leading-relaxed">
+          <p>
+            Esta sección es un laboratorio abierto de <strong class="text-default">generación de video con código</strong>.
+            Cada test es una mini app que toma algo tuyo (tus respuestas, una foto o tu música) y produce un video
+            vertical listo para compartir en historias y reels. Lo interesante: el video <strong class="text-default">se
+            renderiza completamente en tu navegador</strong> con <a href="https://www.remotion.dev" target="_blank" rel="noopener" class="text-primary hover:underline">Remotion</a>
+            y <code class="text-default">@remotion/web-renderer</code>, así que nada de lo que eliges se sube a un
+            servidor: tus datos nunca salen de tu dispositivo.
+          </p>
+
+          <div>
+            <h3 class="font-semibold text-default text-lg mb-2">Qué hace cada uno</h3>
+            <ul class="flex flex-col gap-2 list-none">
+              <li><strong class="text-default">📸 Mi polaroid:</strong> tomas o subes una foto y la convierte en un video polaroid animado. Útil para una intro o un recuerdo con movimiento.</li>
+              <li><strong class="text-default">🎧 Mi canción favorita:</strong> buscas una canción y arma un video con su portada y un intro de 30 s del tema. Ideal para presumir lo que escuchas.</li>
+              <li><strong class="text-default">🎤 Mi top 5 de artista:</strong> eliges 5 canciones de un artista y, a punta de comparaciones, las ordena en tu ranking personal con la #1 sonando al final.</li>
+              <li><strong class="text-default">🎵 Rankea tu álbum favorito:</strong> igual que el anterior pero dentro de un álbum, con su portada como fondo.</li>
+              <li><strong class="text-default">🧠 Tests de personalidad y trivia:</strong> mini quizzes (red flags, personalidad y más) que terminan en un video con tu resultado.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-default text-lg mb-2">Cómo está hecho</h3>
+            <p class="mb-2">
+              La música y las portadas vienen de la <strong class="text-default">API pública de búsqueda de iTunes</strong>
+              de Apple (un fragmento de 30 s por canción). El video se compone con React dentro de Remotion y se
+              codifica a <code class="text-default">.mp4</code> 9:16 directamente en el navegador usando WebCodecs.
+            </p>
+            <p>
+              Todo el código de esta página estará <strong class="text-default">disponible en abierto (open source)</strong>
+              para que lo estudies, lo adaptes o lo uses en tus propios proyectos. Si quieres aprender a crear videos
+              así, tenemos un taller de <a href="/motion-graphics-workshop" class="text-primary hover:underline">Motion Graphics con Remotion</a> en Artefisual.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-14">
+        <h2 class="font-bold text-default text-xl mb-1">Preguntas frecuentes</h2>
+        <p class="text-offset text-base mb-6">Dudas comunes sobre los videos y tu privacidad.</p>
+
+        <div class="flex flex-col divide-y divide-offset/30 border border-offset/30 rounded-xl overflow-hidden">
+          {faqs.map(({ q, a }) => (
+            <details class="group px-5 py-4 cursor-pointer select-none">
+              <summary class="flex items-center justify-between gap-4 list-none text-default font-semibold text-base [&::-webkit-details-marker]:hidden">
+                {q}
+                <Icon
+                  name="tabler:plus"
+                  class="size-5 text-offset shrink-0 transition-transform duration-200 group-open:rotate-45"
+                  aria-hidden="true"
+                />
+              </summary>
+              <p class="mt-3 text-base text-offset leading-relaxed">{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <footer class="mt-14 pt-8 border-t border-offset/30 text-offset text-base flex flex-col items-center text-center">
+        <span>En colaboración con</span>
+        <img src="/utec.svg" alt="UTEC" class="mt-3 h-28 invert-on-dark" />
+      </footer>
+    </main>
+  </body>
+</html>
