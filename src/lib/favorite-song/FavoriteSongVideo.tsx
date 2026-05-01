@@ -176,7 +176,7 @@ export const FavoriteSongVideo = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          filter: blurredBackground ? undefined : "blur(75px) brightness(0.3) saturate(1.4)",
+          filter: blurredBackground ? undefined : "blur(70px) brightness(0.3) saturate(1.4)",
           transform: blurredBackground ? undefined : "scale(1.25)",
         }}
       />
