@@ -20,7 +20,7 @@ export const ScoreVideo = ({ score, correct, total, testTitle, userName }: Props
 
   const progress = interpolate(
     frame,
-    [0, durationInFrames - 12],
+    [0, durationInFrames - 15],
     [0, score],
     {
       extrapolateLeft: "clamp",
