@@ -1,0 +1,525 @@
+---
+import { Icon } from "astro-icon/components";
+import DomainRedirect from "~/components/domain-redirect.astro";
+import artefisualIcon from "~/assets/artefisual-icon.svg";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "~/styles/index.css";
+
+const title = "Mi polaroid | Artefisual";
+---
+
+<!DOCTYPE html>
+<html lang="es" class="h-full" data-theme="dark">
+  <head>
+    <DomainRedirect />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script is:inline>
+      const theme = localStorage.getItem("theme") || "system";
+      if (theme === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = prefersDark ? "dark" : "light";
+      } else {
+        document.documentElement.dataset.theme = theme;
+      }
+    </script>
+    <style>
+      [data-theme="dark"] { color-scheme: dark; }
+      [data-theme="light"] { color-scheme: light; }
+
+      #camera-video {
+        transform: scaleX(-1); /* espejo para selfie */
+      }
+      #camera-video.environment {
+        transform: scaleX(1);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-default text-default font-sans">
+    <header class="fixed top-0 inset-x-0 z-50 border-b border-offset bg-default/97 backdrop-blur-md">
+      <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/remotion" class="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded" aria-label="Ver todos los tests">
+          <img src={artefisualIcon.src} alt="Logo de Artefisual" class="w-[36px] object-cover invert-on-dark" width="36" height="36" />
+          <Icon name="artefisual" class="h-6 w-auto invert-on-dark select-none" aria-hidden="true" />
+        </a>
+        <button
+          id="profile-btn"
+          type="button"
+          aria-label="Cambiar tu nombre"
+          class="flex items-center gap-2 rounded-full border border-offset px-3 py-1.5 text-base text-offset hover:bg-offset/40 hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <Icon name="tabler:user" class="size-4 shrink-0" aria-hidden="true" />
+          <span id="profile-label">Tu nombre</span>
+        </button>
+      </div>
+    </header>
+
+    <dialog
+      id="name-dialog"
+      class="m-auto w-full max-w-sm rounded-2xl border border-offset bg-default p-6 text-default shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+    >
+      <h2 class="font-bold text-lg mb-1">¿Cómo te llamas?</h2>
+      <p class="text-base text-offset mb-4">Algunos videos usarán tu nombre.</p>
+      <form id="name-form" method="dialog">
+        <input
+          id="name-input"
+          type="text"
+          placeholder="Escribe tu nombre..."
+          maxlength="30"
+          autocomplete="given-name"
+          class="w-full rounded-xl border border-offset bg-offset/30 px-4 py-3 text-base text-default placeholder:text-offset/60 focus:outline-none focus:ring-2 focus:ring-primary transition mb-4"
+        />
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            id="name-cancel"
+            class="px-4 py-2 rounded-lg border border-offset text-base text-offset hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-lg bg-primary text-white text-base font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      const KEY = "remotion:user-name";
+      const btn = document.getElementById("profile-btn")!;
+      const label = document.getElementById("profile-label")!;
+      const dialog = document.getElementById("name-dialog") as HTMLDialogElement;
+      const input = document.getElementById("name-input") as HTMLInputElement;
+      const cancelBtn = document.getElementById("name-cancel")!;
+      const form = document.getElementById("name-form")!;
+
+      function updateLabel(name: string) {
+        label.textContent = name || "Tu nombre";
+      }
+
+      updateLabel(localStorage.getItem(KEY) || "");
+
+      btn.addEventListener("click", () => {
+        input.value = localStorage.getItem(KEY) || "";
+        dialog.showModal();
+        requestAnimationFrame(() => input.focus());
+      });
+
+      cancelBtn.addEventListener("click", () => dialog.close());
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = input.value.trim();
+        if (name) {
+          localStorage.setItem(KEY, name);
+        } else {
+          localStorage.removeItem(KEY);
+        }
+        updateLabel(name);
+        dialog.close();
+      });
+
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+    </script>
+
+    <main class="max-w-2xl mx-auto px-4 pt-24 pb-6">
+      <a href="/remotion" class="inline-flex items-center gap-1 text-base text-offset hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded transition mb-6">
+        <Icon name="tabler:chevron-left" class="size-4" aria-hidden="true" />
+        Tests
+      </a>
+
+      <!-- Paso 1: intro -->
+      <div id="step-intro">
+        <h1 class="text-2xl font-bold mb-1">📸 Mi polaroid</h1>
+        <p class="text-offset text-base mb-8">Toma una foto, escribe un texto y genera tu video polaroid animado.</p>
+
+        <div class="flex flex-col items-center gap-4">
+          <button
+            id="open-camera-btn"
+            type="button"
+            class="w-full max-w-xs py-4 rounded-2xl bg-primary text-white font-bold text-lg hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center justify-center gap-3"
+          >
+            <Icon name="tabler:camera" class="size-6" aria-hidden="true" />
+            Abrir cámara
+          </button>
+          <p id="camera-error" class="hidden text-red-400 text-base text-center" role="alert"></p>
+        </div>
+      </div>
+
+      <!-- Paso 2: cámara -->
+      <div id="step-camera" class="hidden">
+        <div class="relative rounded-2xl overflow-hidden bg-black mb-4" style="aspect-ratio: 1/1">
+          <video id="camera-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+
+          <!-- Countdown overlay -->
+          <div id="countdown-overlay" class="hidden absolute inset-0 flex items-center justify-center">
+            <span id="countdown-number" class="text-white font-black" style="font-size: 8rem; text-shadow: 0 4px 24px rgba(0,0,0,0.8); line-height: 1">3</span>
+          </div>
+
+          <!-- Flash overlay -->
+          <div id="flash-overlay" class="hidden absolute inset-0 bg-white"></div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            id="flip-camera-btn"
+            type="button"
+            class="px-4 py-3 rounded-xl border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center gap-2"
+            aria-label="Girar cámara"
+          >
+            <Icon name="tabler:camera-rotate" class="size-5" aria-hidden="true" />
+          </button>
+          <button
+            id="capture-btn"
+            type="button"
+            class="flex-1 py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition text-lg"
+          >
+            📸 Tomar foto
+          </button>
+        </div>
+      </div>
+
+      <!-- Paso 3: caption + preview -->
+      <div id="step-caption" class="hidden">
+        <!-- Polaroid preview -->
+        <div class="flex justify-center mb-6">
+          <div class="bg-white p-3 pb-10 shadow-2xl" style="width: 240px; transform: rotate(-2deg)">
+            <img id="preview-photo" src="" alt="Tu foto" class="w-full aspect-square object-cover block" width="216" height="216" />
+            <p id="preview-caption-text" class="text-center text-gray-700 mt-3 font-medium" style="font-family: Georgia, serif; font-style: italic; font-size: 0.95rem; min-height: 1.4rem;">
+              &nbsp;
+            </p>
+          </div>
+        </div>
+
+        <!-- Caption input -->
+        <div class="mb-4">
+          <label for="caption-input" class="block text-base font-semibold text-default mb-2">¿Cuál es el texto de la foto?</label>
+          <input
+            id="caption-input"
+            type="text"
+            maxlength="40"
+            placeholder="Modo: productivo ✨"
+            class="w-full px-4 py-2.5 rounded-lg border border-offset bg-default text-default placeholder:text-offset focus:outline-none focus:ring-2 focus:ring-primary text-base"
+          />
+        </div>
+
+        <!-- Sugerencias rápidas -->
+        <div class="flex flex-wrap gap-2 mb-6" id="caption-suggestions" role="group" aria-label="Sugerencias de texto">
+          {["Esto es para la historia 🏆", "Cara de viernes 🌟", "Modo: cafeína activada ☕", "Productividad: 0%", "Era yo en mi mejor momento"].map(s => (
+            <button
+              type="button"
+              data-suggestion={s}
+              class="suggestion-btn px-3 py-1.5 rounded-full border border-offset text-offset text-base hover:border-primary hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            id="retake-btn"
+            type="button"
+            class="px-4 py-3 rounded-xl border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center gap-2"
+          >
+            <Icon name="tabler:camera" class="size-4" aria-hidden="true" />
+            Repetir
+          </button>
+          <button
+            id="generate-video-btn"
+            type="button"
+            class="flex-1 py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center justify-center gap-2"
+          >
+            <Icon name="tabler:sparkles" class="size-5" aria-hidden="true" />
+            Generar video
+          </button>
+        </div>
+      </div>
+
+      <!-- Paso 4: resultado -->
+      <div id="step-result" class="hidden">
+        <div id="video-loading" class="flex flex-col items-center gap-3 py-8" aria-live="polite">
+          <div class="size-10 border-2 border-offset border-t-primary rounded-full animate-spin" aria-hidden="true"></div>
+          <p class="text-offset text-base">Revelando tu polaroid...</p>
+        </div>
+
+        <div id="video-error" class="hidden flex flex-col items-center gap-3 py-4" role="alert">
+          <p id="video-error-text" class="text-red-400 text-base"></p>
+          <button id="video-retry-btn" type="button" class="px-4 py-2 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 transition">
+            Intenta de nuevo
+          </button>
+        </div>
+
+        <div id="video-done" class="hidden flex flex-col items-center gap-3">
+          <p id="video-timing-text" class="text-offset text-base"></p>
+          <video id="video-result-player" class="w-full max-w-[240px] rounded-xl" controls autoplay loop playsinline aria-label="Tu video polaroid"></video>
+          <div class="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3">
+            <a id="video-download-link" href="#" download class="px-5 py-2.5 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:download" class="size-4" aria-hidden="true" />
+              Descargar
+            </a>
+            <button id="video-share-instagram-btn" type="button" class="hidden px-5 py-2.5 rounded-lg text-white font-medium bg-gradient-to-br from-[#feda75] via-[#d62976] to-[#4f5bd5] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:brand-instagram" class="size-4" aria-hidden="true" />
+              Instagram
+            </button>
+            <button id="video-share-tiktok-btn" type="button" class="hidden px-5 py-2.5 rounded-lg text-white font-medium bg-black hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:brand-tiktok" class="size-4" aria-hidden="true" />
+              TikTok
+            </button>
+            <button id="video-share-whatsapp-btn" type="button" class="hidden px-5 py-2.5 rounded-lg text-white font-medium bg-[#25D366] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:brand-whatsapp" class="size-4" aria-hidden="true" />
+              WhatsApp
+            </button>
+          </div>
+          <button id="restart-btn" type="button" class="px-5 py-2.5 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition mt-2">
+            Nueva foto
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // --- DOM ---
+      const stepIntro = document.getElementById("step-intro")!;
+      const stepCamera = document.getElementById("step-camera")!;
+      const stepCaption = document.getElementById("step-caption")!;
+      const stepResult = document.getElementById("step-result")!;
+
+      const openCameraBtn = document.getElementById("open-camera-btn")!;
+      const cameraError = document.getElementById("camera-error")!;
+      const cameraVideo = document.getElementById("camera-video") as HTMLVideoElement;
+      const flipCameraBtn = document.getElementById("flip-camera-btn")!;
+      const captureBtn = document.getElementById("capture-btn") as HTMLButtonElement;
+      const countdownOverlay = document.getElementById("countdown-overlay")!;
+      const countdownNumber = document.getElementById("countdown-number")!;
+      const flashOverlay = document.getElementById("flash-overlay")!;
+
+      const previewPhoto = document.getElementById("preview-photo") as HTMLImageElement;
+      const previewCaptionText = document.getElementById("preview-caption-text")!;
+      const captionInput = document.getElementById("caption-input") as HTMLInputElement;
+      const retakeBtn = document.getElementById("retake-btn")!;
+      const generateVideoBtn = document.getElementById("generate-video-btn")!;
+
+      const videoLoading = document.getElementById("video-loading")!;
+      const videoError = document.getElementById("video-error")!;
+      const videoErrorText = document.getElementById("video-error-text")!;
+      const videoRetryBtn = document.getElementById("video-retry-btn")!;
+      const videoDone = document.getElementById("video-done")!;
+      const videoTimingText = document.getElementById("video-timing-text")!;
+      const videoPlayer = document.getElementById("video-result-player") as HTMLVideoElement;
+      const videoDownloadLink = document.getElementById("video-download-link") as HTMLAnchorElement;
+      const videoShareInstagramBtn = document.getElementById("video-share-instagram-btn")!;
+      const videoShareTiktokBtn = document.getElementById("video-share-tiktok-btn")!;
+      const videoShareWhatsappBtn = document.getElementById("video-share-whatsapp-btn")!;
+      const restartBtn = document.getElementById("restart-btn")!;
+
+      // --- State ---
+      let stream: MediaStream | null = null;
+      let facingMode: "user" | "environment" = "user";
+      let capturedDataUrl: string | null = null;
+      let currentBlob: Blob | null = null;
+      let isCountingDown = false;
+
+      function show(el: HTMLElement) { el.classList.remove("hidden"); }
+      function hide(el: HTMLElement) { el.classList.add("hidden"); }
+      function showStep(step: HTMLElement) {
+        [stepIntro, stepCamera, stepCaption, stepResult].forEach(s => s.classList.add("hidden"));
+        step.classList.remove("hidden");
+      }
+
+      // --- Camera ---
+      async function startCamera(facing: "user" | "environment" = "user") {
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facing, width: { ideal: 1080 }, height: { ideal: 1080 } },
+        });
+        cameraVideo.srcObject = stream;
+        cameraVideo.classList.toggle("environment", facing === "environment");
+      }
+
+      openCameraBtn.addEventListener("click", async () => {
+        hide(cameraError);
+        try {
+          await startCamera(facingMode);
+          showStep(stepCamera);
+        } catch {
+          cameraError.textContent = "No se pudo acceder a la cámara. Verifica los permisos.";
+          show(cameraError);
+        }
+      });
+
+      flipCameraBtn.addEventListener("click", async () => {
+        if (isCountingDown) return;
+        facingMode = facingMode === "user" ? "environment" : "user";
+        await startCamera(facingMode);
+      });
+
+      // --- Countdown + Capture ---
+      captureBtn.addEventListener("click", () => {
+        if (isCountingDown) return;
+        startCountdown();
+      });
+
+      function startCountdown() {
+        isCountingDown = true;
+        captureBtn.disabled = true;
+        let count = 3;
+        countdownNumber.textContent = String(count);
+        show(countdownOverlay);
+
+        const timer = setInterval(() => {
+          count--;
+          if (count <= 0) {
+            clearInterval(timer);
+            hide(countdownOverlay);
+            takePhoto();
+          } else {
+            countdownNumber.textContent = String(count);
+          }
+        }, 800);
+      }
+
+      function takePhoto() {
+        // Flash
+        show(flashOverlay);
+        setTimeout(() => hide(flashOverlay), 150);
+
+        const canvas = document.createElement("canvas");
+        const size = Math.min(cameraVideo.videoWidth, cameraVideo.videoHeight);
+        canvas.width = 800;
+        canvas.height = 800;
+        const ctx = canvas.getContext("2d")!;
+
+        // Center crop + espejo para selfie
+        const srcX = (cameraVideo.videoWidth - size) / 2;
+        const srcY = (cameraVideo.videoHeight - size) / 2;
+        if (facingMode === "user") {
+          ctx.translate(800, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(cameraVideo, srcX, srcY, size, size, 0, 0, 800, 800);
+
+        capturedDataUrl = canvas.toDataURL("image/jpeg", 0.88);
+
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        stream = null;
+
+        previewPhoto.src = capturedDataUrl;
+        captionInput.value = "";
+        previewCaptionText.innerHTML = "&nbsp;";
+        isCountingDown = false;
+        captureBtn.disabled = false;
+        showStep(stepCaption);
+      }
+
+      // --- Caption preview ---
+      captionInput.addEventListener("input", () => {
+        const val = captionInput.value.trim();
+        previewCaptionText.textContent = val || " ";
+      });
+
+      document.querySelectorAll<HTMLButtonElement>(".suggestion-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const suggestion = btn.dataset.suggestion ?? "";
+          captionInput.value = suggestion;
+          previewCaptionText.textContent = suggestion;
+        });
+      });
+
+      retakeBtn.addEventListener("click", async () => {
+        capturedDataUrl = null;
+        try {
+          await startCamera(facingMode);
+          showStep(stepCamera);
+        } catch {
+          showStep(stepIntro);
+        }
+      });
+
+      // --- Render ---
+      generateVideoBtn.addEventListener("click", renderVideo);
+      videoRetryBtn.addEventListener("click", renderVideo);
+
+      async function renderVideo() {
+        if (!capturedDataUrl) return;
+        hide(videoError);
+        hide(videoDone);
+        show(videoLoading);
+        showStep(stepResult);
+
+        const caption = captionInput.value.trim() || "📸";
+        const startedAt = performance.now();
+
+        try {
+          const { renderPolaroidVideoClientSide } = await import("~/lib/polaroid-photo/render-client");
+          const blob = await renderPolaroidVideoClientSide({ photoDataUrl: capturedDataUrl, caption });
+          const elapsed = ((performance.now() - startedAt) / 1000).toFixed(2);
+
+          currentBlob = blob;
+          const blobUrl = URL.createObjectURL(blob);
+          videoPlayer.src = blobUrl;
+          videoDownloadLink.href = blobUrl;
+          videoDownloadLink.download = "mi-polaroid-artefisual.mp4";
+
+          const file = new File([blob], "mi-polaroid-artefisual.mp4", { type: "video/mp4" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            show(videoShareInstagramBtn);
+            show(videoShareTiktokBtn);
+            show(videoShareWhatsappBtn);
+          }
+
+          hide(videoLoading);
+          show(videoDone);
+          videoTimingText.textContent = `Revelado en ${elapsed}s`;
+        } catch (err) {
+          hide(videoLoading);
+          show(videoError);
+          videoErrorText.textContent = err instanceof Error ? err.message : "No se pudo generar el video.";
+        }
+      }
+
+      async function shareVideo() {
+        if (!currentBlob) return;
+        const file = new File([currentBlob], "mi-polaroid-artefisual.mp4", { type: "video/mp4" });
+        try { await navigator.share({ files: [file], title: "Mi polaroid" }); } catch { }
+      }
+
+      videoShareInstagramBtn.addEventListener("click", shareVideo);
+      videoShareTiktokBtn.addEventListener("click", shareVideo);
+      videoShareWhatsappBtn.addEventListener("click", shareVideo);
+
+      restartBtn.addEventListener("click", () => {
+        capturedDataUrl = null;
+        currentBlob = null;
+        hide(videoShareInstagramBtn);
+        hide(videoShareTiktokBtn);
+        hide(videoShareWhatsappBtn);
+        showStep(stepIntro);
+      });
+    </script>
+  <script>
+      const tap = new Audio("/tap_sound.mp3");
+      tap.volume = 0.5;
+      document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("a, button, summary, [role='button']")) {
+          tap.currentTime = 0;
+          tap.play().catch(() => {});
+        }
+      });
+    </script>
+  </body>
+</html>
