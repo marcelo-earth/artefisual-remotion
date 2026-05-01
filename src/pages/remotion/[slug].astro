@@ -1,0 +1,493 @@
+---
+import { Icon } from "astro-icon/components";
+import DomainRedirect from "~/components/domain-redirect.astro";
+import artefisualIcon from "~/assets/artefisual-icon.svg";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "~/styles/index.css";
+import { funTests, getFunTest } from "~/data/fun-tests";
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  return funTests.map((test) => ({ params: { slug: test.slug } }));
+}
+
+const { slug } = Astro.params;
+const test = getFunTest(slug!);
+
+if (!test) {
+  return Astro.redirect("/remotion");
+}
+
+const title = `${test.title} | Artefisual`;
+const testKind = test.kind ?? "trivia";
+// En personalidad no hay respuestas correctas; en red flags no queremos revelarlas.
+const showAnswerFeedback = testKind !== "personality" && test.slug !== "red-green-flags";
+---
+
+<!DOCTYPE html>
+<html lang="es" class="h-full" data-theme="dark">
+  <head>
+    <DomainRedirect />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script is:inline>
+      const theme = localStorage.getItem("theme") || "system";
+      if (theme === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = prefersDark ? "dark" : "light";
+      } else {
+        document.documentElement.dataset.theme = theme;
+      }
+    </script>
+    <style>
+      [data-theme="dark"] { color-scheme: dark; }
+      [data-theme="light"] { color-scheme: light; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-default text-default font-sans">
+    <header class="fixed top-0 inset-x-0 z-50 border-b border-offset bg-default/97 backdrop-blur-md">
+      <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/remotion" class="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded" aria-label="Ver todos los tests">
+          <img src={artefisualIcon.src} alt="Logo de Artefisual" class="w-[36px] object-cover invert-on-dark" width="36" height="36" />
+          <Icon name="artefisual" class="h-6 w-auto invert-on-dark select-none" aria-hidden="true" />
+        </a>
+        <button
+          id="profile-btn"
+          type="button"
+          aria-label="Cambiar tu nombre"
+          class="flex items-center gap-2 rounded-full border border-offset px-3 py-1.5 text-base text-offset hover:bg-offset/40 hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <Icon name="tabler:user" class="size-4 shrink-0" aria-hidden="true" />
+          <span id="profile-label">Tu nombre</span>
+        </button>
+      </div>
+    </header>
+
+    <dialog
+      id="name-dialog"
+      class="m-auto w-full max-w-sm rounded-2xl border border-offset bg-default p-6 text-default shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+    >
+      <h2 class="font-bold text-lg mb-1">¿Cómo te llamas?</h2>
+      <p class="text-base text-offset mb-4">Algunos videos usarán tu nombre.</p>
+      <form id="name-form" method="dialog">
+        <input
+          id="name-input"
+          type="text"
+          placeholder="Escribe tu nombre..."
+          maxlength="30"
+          autocomplete="given-name"
+          class="w-full rounded-xl border border-offset bg-offset/30 px-4 py-3 text-base text-default placeholder:text-offset/60 focus:outline-none focus:ring-2 focus:ring-primary transition mb-4"
+        />
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            id="name-cancel"
+            class="px-4 py-2 rounded-lg border border-offset text-base text-offset hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-lg bg-primary text-white text-base font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      const KEY = "remotion:user-name";
+      const btn = document.getElementById("profile-btn")!;
+      const label = document.getElementById("profile-label")!;
+      const dialog = document.getElementById("name-dialog") as HTMLDialogElement;
+      const input = document.getElementById("name-input") as HTMLInputElement;
+      const cancelBtn = document.getElementById("name-cancel")!;
+      const form = document.getElementById("name-form")!;
+
+      function updateLabel(name: string) {
+        label.textContent = name || "Tu nombre";
+      }
+
+      updateLabel(localStorage.getItem(KEY) || "");
+
+      btn.addEventListener("click", () => {
+        input.value = localStorage.getItem(KEY) || "";
+        dialog.showModal();
+        requestAnimationFrame(() => input.focus());
+      });
+
+      cancelBtn.addEventListener("click", () => dialog.close());
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = input.value.trim();
+        if (name) {
+          localStorage.setItem(KEY, name);
+        } else {
+          localStorage.removeItem(KEY);
+        }
+        updateLabel(name);
+        dialog.close();
+      });
+
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+    </script>
+
+    <main class="max-w-2xl mx-auto px-4 pt-24 pb-6">
+      <a href="/remotion" class="inline-flex items-center gap-1 text-base text-offset hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded transition mb-2">
+        <Icon name="tabler:chevron-left" class="size-4" aria-hidden="true" />
+        Tests
+      </a>
+      <h1 class="mb-1 font-bold text-default text-xl lg:text-2xl">{test.emoji} {test.title}</h1>
+      {test.disclaimer && (
+        <p class="text-offset text-base mt-1 mb-4">{test.disclaimer}</p>
+      )}
+
+      <section class="rounded-xl border border-offset overflow-hidden mt-4" aria-label="Quiz">
+        <div class="h-1.5 bg-neutral-200 dark:bg-neutral-700/50" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} id="quiz-progress-region">
+          <div id="quiz-progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div id="quiz-question-view" class="p-6">
+          <p id="quiz-step-label" class="text-base text-offset mb-2" aria-live="polite"></p>
+          <h2 id="quiz-question-text" class="font-semibold text-default text-lg mb-5"></h2>
+          <div id="quiz-options" class="space-y-2" role="group" aria-labelledby="quiz-question-text"></div>
+        </div>
+
+        <div id="quiz-result-view" class="hidden p-8 flex flex-col items-center text-center">
+          <div id="video-loading" class="hidden w-full flex flex-col items-center gap-3 py-4" aria-live="polite">
+            <div class="size-8 border-2 border-offset border-t-primary rounded-full animate-spin" aria-hidden="true"></div>
+            <p id="video-phase-text" class="text-offset text-base">Renderizando en tu navegador...</p>
+          </div>
+
+          <div id="video-error" class="hidden w-full flex flex-col items-center gap-3 py-2" role="alert">
+            <p class="text-red-400 text-base" id="video-error-text">No se pudo generar el video.</p>
+            <button
+              id="video-retry-btn"
+              type="button"
+              class="px-4 py-2 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+            >
+              Intentar de nuevo
+            </button>
+          </div>
+
+          <div id="video-result" class="hidden w-full flex flex-col items-center gap-3 mt-2">
+            <p id="video-timing-text" class="text-offset text-base"></p>
+            <video id="video-result-player" class="w-full max-w-[240px] rounded-xl" controls autoplay loop playsinline aria-label="Tu video resultado"></video>
+            <div class="flex flex-wrap gap-3 justify-center">
+              <a
+                id="video-download-link"
+                href="#"
+                download
+                class="px-5 py-2.5 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center gap-2"
+              >
+                <Icon name="tabler:download" class="size-4" aria-hidden="true" />
+                Descargar
+              </a>
+              <button
+                id="video-share-instagram-btn"
+                type="button"
+                class="hidden lg:!hidden px-5 py-2.5 rounded-lg text-white font-medium bg-gradient-to-br from-[#feda75] via-[#d62976] to-[#4f5bd5] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center gap-2"
+              >
+                <Icon name="tabler:brand-instagram" class="size-4" aria-hidden="true" />
+                Instagram
+              </button>
+              <button
+                id="video-share-tiktok-btn"
+                type="button"
+                class="hidden lg:!hidden px-5 py-2.5 rounded-lg text-white font-medium bg-black hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center gap-2"
+              >
+                <Icon name="tabler:brand-tiktok" class="size-4" aria-hidden="true" />
+                TikTok
+              </button>
+              <button
+                id="video-share-whatsapp-btn"
+                type="button"
+                class="hidden lg:!hidden px-5 py-2.5 rounded-lg text-white font-medium bg-[#25D366] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition inline-flex items-center gap-2"
+              >
+                <Icon name="tabler:brand-whatsapp" class="size-4" aria-hidden="true" />
+                WhatsApp
+              </button>
+              <button
+                id="copy-test-btn"
+                type="button"
+                class="hidden lg:inline-flex px-5 py-2.5 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition items-center gap-2"
+              >
+                <Icon name="tabler:copy" class="size-4" aria-hidden="true" />
+                Copiar test
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3 justify-center mt-6">
+            <button
+              id="retry-btn"
+              type="button"
+              class="px-5 py-2.5 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+            >
+              Repetir test
+            </button>
+            <a
+              href="/remotion"
+              class="px-5 py-2.5 rounded-lg bg-offset text-default font-medium hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+            >
+              Ver más tests
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script define:vars={{ questions: test.questions, testTitle: test.title, testSlug: test.slug, testKind, showAnswerFeedback }} is:inline>
+      window.__funTestData = { questions, testTitle, testSlug, testKind, showAnswerFeedback };
+    </script>
+    <script>
+      const { questions, testTitle, testSlug, testKind, showAnswerFeedback } = (window as any).__funTestData;
+      const USER_NAME_KEY = "remotion:user-name";
+
+      const stepLabel = document.getElementById("quiz-step-label")!;
+      const questionText = document.getElementById("quiz-question-text")!;
+      const optionsContainer = document.getElementById("quiz-options")!;
+      const progressBar = document.getElementById("quiz-progress-bar")!;
+      const progressRegion = document.getElementById("quiz-progress-region")!;
+      const questionView = document.getElementById("quiz-question-view")!;
+      const resultView = document.getElementById("quiz-result-view")!;
+      const retryBtn = document.getElementById("retry-btn")!;
+
+      const videoLoading = document.getElementById("video-loading")!;
+      const videoError = document.getElementById("video-error")!;
+      const videoErrorText = document.getElementById("video-error-text")!;
+      const videoResult = document.getElementById("video-result")!;
+      const videoPhaseText = document.getElementById("video-phase-text")!;
+      const videoRetryBtn = document.getElementById("video-retry-btn")!;
+      const videoPlayer = document.getElementById("video-result-player") as HTMLVideoElement;
+      const videoDownloadLink = document.getElementById("video-download-link") as HTMLAnchorElement;
+      const videoShareInstagramBtn = document.getElementById("video-share-instagram-btn")!;
+      const videoShareTiktokBtn = document.getElementById("video-share-tiktok-btn")!;
+      const videoShareWhatsappBtn = document.getElementById("video-share-whatsapp-btn")!;
+      const copyTestBtn = document.getElementById("copy-test-btn")!;
+      const videoTimingText = document.getElementById("video-timing-text")!;
+
+      let currentIndex = 0;
+      let correctCount = 0;
+      let currentBlob: Blob | null = null;
+      const traitScores: Record<string, number> = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+
+      function show(el: HTMLElement | null) { el?.classList.remove("hidden"); }
+      function hide(el: HTMLElement | null) { el?.classList.add("hidden"); }
+
+      async function showDownloadableVideo(source: string | Blob) {
+        const blob = typeof source === "string" ? await (await fetch(source)).blob() : source;
+        const videoBlob = blob.type === "video/mp4" ? blob : new Blob([blob], { type: "video/mp4" });
+        currentBlob = videoBlob;
+        const blobUrl = URL.createObjectURL(videoBlob);
+        videoPlayer.src = blobUrl;
+        videoDownloadLink.href = blobUrl;
+        videoDownloadLink.download = "mi-resultado-artefisual.mp4";
+
+        const file = new File([videoBlob], "mi-resultado-artefisual.mp4", { type: "video/mp4" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          show(videoShareInstagramBtn);
+          show(videoShareTiktokBtn);
+          show(videoShareWhatsappBtn);
+        }
+      }
+
+      function renderQuestion() {
+        const q = questions[currentIndex];
+        const total = questions.length;
+        stepLabel.textContent = `Pregunta ${currentIndex + 1} de ${total}`;
+        questionText.textContent = q.question;
+        const pct = Math.round((currentIndex / total) * 100);
+        progressBar.style.width = `${pct}%`;
+        progressRegion.setAttribute("aria-valuenow", String(pct));
+
+        optionsContainer.innerHTML = "";
+        q.options.forEach((option: string, i: number) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className =
+            "w-full text-left px-4 py-3 rounded-lg border border-offset hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition text-default text-base";
+          btn.textContent = option;
+          btn.addEventListener("click", () => selectAnswer(i, btn));
+          optionsContainer.appendChild(btn);
+        });
+
+        (optionsContainer.firstElementChild as HTMLElement | null)?.focus();
+      }
+
+      function selectAnswer(i: number, _btn: HTMLButtonElement) {
+        const q = questions[currentIndex];
+        if (testKind === "personality") {
+          // Escala 0-4: extremo "Muy de acuerdo" (i=0) aporta el máximo en afirmaciones
+          // normales; en las inversas (reverse) el extremo "Muy en desacuerdo" (i=4) aporta más.
+          const value = q.reverse ? i : (q.options.length - 1 - i);
+          traitScores[q.trait] = (traitScores[q.trait] || 0) + value;
+        } else {
+          const isCorrect = i === q.correctIndex;
+          if (isCorrect) correctCount++;
+        }
+
+        Array.from(optionsContainer.children).forEach((child, idx) => {
+          (child as HTMLButtonElement).setAttribute("disabled", "true");
+          if (idx === q.correctIndex && showAnswerFeedback) {
+            child.classList.add("border-green-500", "bg-green-500/10");
+          } else if (idx === i && showAnswerFeedback) {
+            child.classList.add("border-red-500", "bg-red-500/10");
+          }
+        });
+
+        const delay = showAnswerFeedback ? 700 : 150;
+        setTimeout(() => {
+          currentIndex++;
+          if (currentIndex < questions.length) {
+            renderQuestion();
+          } else {
+            showResult();
+          }
+        }, delay);
+      }
+
+      function showResult() {
+        progressBar.style.width = "100%";
+        progressRegion.setAttribute("aria-valuenow", "100");
+        questionView.classList.add("hidden");
+        resultView.classList.remove("hidden");
+        generateVideoClientSide();
+      }
+
+      function reset() {
+        currentIndex = 0;
+        correctCount = 0;
+        currentBlob = null;
+        traitScores.O = traitScores.C = traitScores.E = traitScores.A = traitScores.N = 0;
+        resultView.classList.add("hidden");
+        questionView.classList.remove("hidden");
+        hide(videoLoading);
+        hide(videoError);
+        hide(videoResult);
+        hide(videoShareInstagramBtn);
+        hide(videoShareTiktokBtn);
+        hide(videoShareWhatsappBtn);
+        renderQuestion();
+      }
+
+      async function generateVideoClientSide() {
+        hide(videoError);
+        hide(videoResult);
+        show(videoLoading);
+        videoPhaseText.textContent = "Renderizando en tu navegador...";
+
+        const startedAt = performance.now();
+        try {
+          let blob: Blob;
+          const userName = localStorage.getItem(USER_NAME_KEY) || "";
+
+          if (testKind === "personality") {
+            // Cuenta de preguntas por rasgo (escala 0-4 por ítem).
+            const counts: Record<string, number> = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+            const maxPerItem = questions[0].options.length - 1;
+            questions.forEach((q: any) => { counts[q.trait] = (counts[q.trait] || 0) + 1; });
+            const pct = (t: string) =>
+              counts[t] ? Math.round((traitScores[t] / (counts[t] * maxPerItem)) * 100) : 0;
+            const { renderPersonalityVideoClientSide } = await import("~/lib/personality-video/render-client");
+            blob = await renderPersonalityVideoClientSide({
+              userName,
+              openness: pct("O"),
+              conscientiousness: pct("C"),
+              extraversion: pct("E"),
+              agreeableness: pct("A"),
+              neuroticism: pct("N"),
+            });
+          } else if (testSlug === "red-green-flags") {
+            const redFlags = questions.length - correctCount;
+            const greenFlags = correctCount;
+            const { renderRedFlagsVideoClientSide } = await import("~/lib/red-flags-video/render-client");
+            blob = await renderRedFlagsVideoClientSide({
+              userName,
+              redFlags,
+              greenFlags,
+              total: questions.length,
+            });
+          } else {
+            const pct = Math.round((correctCount / questions.length) * 100);
+            const { renderScoreVideoClientSide } = await import("~/lib/score-video/render-client");
+            blob = await renderScoreVideoClientSide({
+              score: pct,
+              correct: correctCount,
+              total: questions.length,
+              testTitle,
+              userName,
+            });
+          }
+          const elapsed = ((performance.now() - startedAt) / 1000).toFixed(2);
+
+          await showDownloadableVideo(blob);
+          hide(videoLoading);
+          show(videoResult);
+          videoTimingText.textContent = `Generado en ${elapsed}s`;
+        } catch (err) {
+          hide(videoLoading);
+          show(videoError);
+          videoErrorText.textContent = err instanceof Error ? err.message : "No se pudo generar el video.";
+        }
+      }
+
+      async function shareVideo() {
+        if (!currentBlob) return;
+        const file = new File([currentBlob], "mi-resultado-artefisual.mp4", { type: "video/mp4" });
+        try {
+          await navigator.share({ files: [file], title: `Mi resultado: ${testTitle}` });
+        } catch {
+          // Usuario canceló
+        }
+      }
+
+      async function copyTestLink() {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          const original = copyTestBtn.innerHTML;
+          copyTestBtn.innerHTML = "¡Copiado!";
+          setTimeout(() => {
+            copyTestBtn.innerHTML = original;
+          }, 1500);
+        } catch {
+          // Usuario bloqueó el acceso al portapapeles
+        }
+      }
+
+      videoShareInstagramBtn.addEventListener("click", shareVideo);
+      videoShareTiktokBtn.addEventListener("click", shareVideo);
+      videoShareWhatsappBtn.addEventListener("click", shareVideo);
+      copyTestBtn.addEventListener("click", copyTestLink);
+
+      videoRetryBtn.addEventListener("click", generateVideoClientSide);
+      retryBtn.addEventListener("click", reset);
+      renderQuestion();
+    </script>
+  <script>
+      const tap = new Audio("/tap_sound.mp3");
+      tap.volume = 0.5;
+      document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("a, button, summary, [role='button']")) {
+          tap.currentTime = 0;
+          tap.play().catch(() => {});
+        }
+      });
+    </script>
+  </body>
+</html>
