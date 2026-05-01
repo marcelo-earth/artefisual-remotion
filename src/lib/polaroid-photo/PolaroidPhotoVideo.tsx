@@ -25,7 +25,7 @@ export const PolaroidPhotoVideo = ({ photoDataUrl, caption }: Props) => {
     extrapolateRight: "clamp",
   });
 
-  const dropIn = spring({ frame, fps, config: { damping: 10, stiffness: 80 } });
+  const dropIn = spring({ frame, fps, config: { damping: 12, stiffness: 80 } });
   const translateY = interpolate(dropIn, [0, 1], [-500, 0]);
   const rotation = interpolate(dropIn, [0, 1], [14, -3]);
   const polaroidOpacity = interpolate(dropIn, [0, 0.3], [0, 1], { extrapolateRight: "clamp" });
