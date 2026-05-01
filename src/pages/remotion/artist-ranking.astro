@@ -392,7 +392,7 @@ const title = "Mi top 5 de artista | Artefisual";
       }
 
       async function getArtistSongs(artistId: number): Promise<Track[]> {
-        const res = await fetch(`/api/itunes?action=lookup&id=${artistId}&entity=song&limit=60&country=us`);
+        const res = await fetch(`/api/itunes?action=lookup&id=${artistId}&entity=song&limit=50&country=us`);
         const data = await res.json();
         return ((data.results ?? []) as any[])
           .filter(r => r.wrapperType === 'track' && r.kind === 'song') as Track[];
