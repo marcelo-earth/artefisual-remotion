@@ -317,7 +317,7 @@ const title = "Mi canción favorita | Artefisual";
         songResults.innerHTML = "";
 
         try {
-          const res = await fetch(`/api/itunes?action=search&term=${encodeURIComponent(term)}&entity=song&limit=10&country=us`);
+          const res = await fetch(`/api/itunes?action=search&term=${encodeURIComponent(term)}&entity=song&limit=12&country=us`);
           const data = await res.json();
           const songs: Song[] = ((data.results ?? []) as any[]).filter(r => r.wrapperType === 'track' && r.kind === 'song') as Song[];
           hide(searchLoading);
