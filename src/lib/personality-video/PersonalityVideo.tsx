@@ -85,7 +85,7 @@ export const PersonalityVideo = ({
           fontSize: "4rem",
           fontWeight: 800,
           color: "white",
-          marginBottom: "4rem",
+          marginBottom: "4.5rem",
           textAlign: "center",
           letterSpacing: "-0.02em",
           transform: `scale(${titleScale})`,
