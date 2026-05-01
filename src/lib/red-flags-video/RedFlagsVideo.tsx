@@ -75,7 +75,7 @@ export const RedFlagsVideo = ({ userName, redFlags, greenFlags, total }: Props) 
     <AbsoluteFill
       style={{
         backgroundColor: bgColor,
-        backgroundImage: `radial-gradient(circle at 50% 35%, ${glowColor}, transparent 60%)`,
+        backgroundImage: `radial-gradient(circle at 50% 35%, ${glowColor}, transparent 65%)`,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
