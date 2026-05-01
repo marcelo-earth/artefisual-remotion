@@ -1,0 +1,445 @@
+---
+import { Icon } from "astro-icon/components";
+import DomainRedirect from "~/components/domain-redirect.astro";
+import artefisualIcon from "~/assets/artefisual-icon.svg";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "~/styles/index.css";
+
+const title = "Mi canción favorita | Artefisual";
+---
+
+<!DOCTYPE html>
+<html lang="es" class="h-full" data-theme="dark">
+  <head>
+    <DomainRedirect />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script is:inline>
+      const theme = localStorage.getItem("theme") || "system";
+      if (theme === "system") {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = prefersDark ? "dark" : "light";
+      } else {
+        document.documentElement.dataset.theme = theme;
+      }
+    </script>
+    <style>
+      [data-theme="dark"] { color-scheme: dark; }
+      [data-theme="light"] { color-scheme: light; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-default text-default font-sans">
+    <header class="fixed top-0 inset-x-0 z-50 border-b border-offset bg-default/97 backdrop-blur-md">
+      <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/remotion" class="flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded" aria-label="Ver todos los tests">
+          <img src={artefisualIcon.src} alt="Logo de Artefisual" class="w-[36px] object-cover invert-on-dark" width="36" height="36" />
+          <Icon name="artefisual" class="h-6 w-auto invert-on-dark select-none" aria-hidden="true" />
+        </a>
+        <button
+          id="profile-btn"
+          type="button"
+          aria-label="Cambiar tu nombre"
+          class="flex items-center gap-2 rounded-full border border-offset px-3 py-1.5 text-base text-offset hover:bg-offset/40 hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+        >
+          <Icon name="tabler:user" class="size-4 shrink-0" aria-hidden="true" />
+          <span id="profile-label">Tu nombre</span>
+        </button>
+      </div>
+    </header>
+
+    <dialog
+      id="name-dialog"
+      class="m-auto w-full max-w-sm rounded-2xl border border-offset bg-default p-6 text-default shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+    >
+      <h2 class="font-bold text-lg mb-1">¿Cómo te llamas?</h2>
+      <p class="text-base text-offset mb-4">Algunos videos usarán tu nombre.</p>
+      <form id="name-form" method="dialog">
+        <input
+          id="name-input"
+          type="text"
+          placeholder="Escribe tu nombre..."
+          maxlength="30"
+          autocomplete="given-name"
+          class="w-full rounded-xl border border-offset bg-offset/30 px-4 py-3 text-base text-default placeholder:text-offset/60 focus:outline-none focus:ring-2 focus:ring-primary transition mb-4"
+        />
+        <div class="flex gap-2 justify-end">
+          <button
+            type="button"
+            id="name-cancel"
+            class="px-4 py-2 rounded-lg border border-offset text-base text-offset hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-lg bg-primary text-white text-base font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Guardar
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <script>
+      const KEY = "remotion:user-name";
+      const btn = document.getElementById("profile-btn")!;
+      const label = document.getElementById("profile-label")!;
+      const dialog = document.getElementById("name-dialog") as HTMLDialogElement;
+      const input = document.getElementById("name-input") as HTMLInputElement;
+      const cancelBtn = document.getElementById("name-cancel")!;
+      const form = document.getElementById("name-form")!;
+
+      function updateLabel(name: string) {
+        label.textContent = name || "Tu nombre";
+      }
+
+      updateLabel(localStorage.getItem(KEY) || "");
+
+      btn.addEventListener("click", () => {
+        input.value = localStorage.getItem(KEY) || "";
+        dialog.showModal();
+        requestAnimationFrame(() => input.focus());
+      });
+
+      cancelBtn.addEventListener("click", () => dialog.close());
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = input.value.trim();
+        if (name) {
+          localStorage.setItem(KEY, name);
+        } else {
+          localStorage.removeItem(KEY);
+        }
+        updateLabel(name);
+        dialog.close();
+      });
+
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+    </script>
+
+    <main class="max-w-2xl mx-auto px-4 pt-24 pb-6">
+      <a href="/remotion" class="inline-flex items-center gap-1 text-base text-offset hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded transition mb-6">
+        <Icon name="tabler:chevron-left" class="size-4" aria-hidden="true" />
+        Tests
+      </a>
+
+      <!-- Paso 1: buscar canción -->
+      <div id="step-search">
+        <h1 class="text-2xl font-bold mb-1">🎧 Mi canción favorita</h1>
+        <p class="text-offset text-base mb-6">¿Cuál es la canción que no puedes dejar de escuchar? Busca y genera tu video.</p>
+
+        <form id="search-form" class="flex gap-2 mb-4" autocomplete="off">
+          <input
+            id="song-input"
+            type="text"
+            placeholder="Nombre de la canción..."
+            class="flex-1 px-4 py-2.5 rounded-lg border border-offset bg-default text-default placeholder:text-offset focus:outline-none focus:ring-2 focus:ring-primary text-base"
+          />
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-lg bg-primary text-white font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition"
+          >
+            Buscar
+          </button>
+        </form>
+
+        <div id="search-loading" class="hidden py-4 flex justify-center">
+          <div class="size-6 border-2 border-offset border-t-primary rounded-full animate-spin" aria-hidden="true"></div>
+        </div>
+        <p id="search-error" class="hidden text-red-400 text-base py-2" role="alert"></p>
+
+        <div id="song-results" class="hidden flex flex-col gap-2" role="list"></div>
+      </div>
+
+      <!-- Paso 2: resultado + video -->
+      <div id="step-result" class="hidden">
+        <button id="back-to-search" class="inline-flex items-center gap-1 text-base text-offset hover:text-default focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded transition mb-6">
+          <Icon name="tabler:chevron-left" class="size-4" aria-hidden="true" />
+          Buscar de nuevo
+        </button>
+
+        <div id="selected-song" class="flex items-center gap-4 p-4 rounded-xl border border-primary bg-primary/5 mb-8">
+          <img id="selected-cover" src="" alt="" class="size-16 rounded-lg object-cover shrink-0" width="64" height="64" />
+          <div class="min-w-0">
+            <div id="selected-title" class="font-bold text-default text-lg leading-snug"></div>
+            <div id="selected-artist" class="text-offset text-base"></div>
+            <div id="selected-album" class="text-offset text-base"></div>
+          </div>
+        </div>
+
+        <div id="video-idle" class="flex justify-center">
+          <button id="generate-video-btn" type="button" class="px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+            <Icon name="tabler:sparkles" class="size-5" aria-hidden="true" />
+            Generar mi video
+          </button>
+        </div>
+
+        <div id="video-loading" class="hidden flex flex-col items-center gap-3 py-4" aria-live="polite">
+          <div class="size-8 border-2 border-offset border-t-primary rounded-full animate-spin" aria-hidden="true"></div>
+          <p class="text-offset text-base">Renderizando tu video...</p>
+        </div>
+
+        <div id="video-error" class="hidden flex flex-col items-center gap-3 py-2" role="alert">
+          <p id="video-error-text" class="text-red-400 text-base"></p>
+          <button id="video-retry-btn" type="button" class="px-4 py-2 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition">Intenta de nuevo</button>
+        </div>
+
+        <div id="video-result" class="hidden flex flex-col items-center gap-3 mt-2">
+          <p id="video-timing-text" class="text-offset text-base"></p>
+          <video id="video-result-player" class="w-full max-w-[240px] rounded-xl" controls autoplay loop playsinline aria-label="Tu video resultado"></video>
+          <div class="flex flex-col gap-2 w-full sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3">
+            <a id="video-download-link" href="#" download class="px-5 py-2.5 rounded-lg border border-offset text-default font-medium hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:download" class="size-4" aria-hidden="true" />
+              Descargar
+            </a>
+            <button id="video-share-instagram-btn" type="button" class="hidden px-5 py-2.5 rounded-lg text-white font-medium bg-gradient-to-br from-[#feda75] via-[#d62976] to-[#4f5bd5] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:brand-instagram" class="size-4" aria-hidden="true" />
+              Instagram
+            </button>
+            <button id="video-share-tiktok-btn" type="button" class="hidden px-5 py-2.5 rounded-lg text-white font-medium bg-black hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:brand-tiktok" class="size-4" aria-hidden="true" />
+              TikTok
+            </button>
+            <button id="video-share-whatsapp-btn" type="button" class="hidden px-5 py-2.5 rounded-lg text-white font-medium bg-[#25D366] hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Icon name="tabler:brand-whatsapp" class="size-4" aria-hidden="true" />
+              WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      interface Song {
+        trackId: number;
+        trackName: string;
+        artistName: string;
+        collectionName: string;
+        artworkUrl100: string;
+        previewUrl?: string;
+      }
+
+      const stepSearch = document.getElementById("step-search")!;
+      const stepResult = document.getElementById("step-result")!;
+
+      const searchForm = document.getElementById("search-form") as HTMLFormElement;
+      const songInput = document.getElementById("song-input") as HTMLInputElement;
+      const searchLoading = document.getElementById("search-loading")!;
+      const searchError = document.getElementById("search-error")!;
+      const songResults = document.getElementById("song-results")!;
+
+      const backToSearch = document.getElementById("back-to-search")!;
+      const selectedCover = document.getElementById("selected-cover") as HTMLImageElement;
+      const selectedTitle = document.getElementById("selected-title")!;
+      const selectedArtist = document.getElementById("selected-artist")!;
+      const selectedAlbum = document.getElementById("selected-album")!;
+
+      const videoIdle = document.getElementById("video-idle")!;
+      const videoLoading = document.getElementById("video-loading")!;
+      const videoError = document.getElementById("video-error")!;
+      const videoErrorText = document.getElementById("video-error-text")!;
+      const videoResult = document.getElementById("video-result")!;
+      const videoTimingText = document.getElementById("video-timing-text")!;
+      const generateVideoBtn = document.getElementById("generate-video-btn")!;
+      const videoRetryBtn = document.getElementById("video-retry-btn")!;
+      const videoPlayer = document.getElementById("video-result-player") as HTMLVideoElement;
+      const videoDownloadLink = document.getElementById("video-download-link") as HTMLAnchorElement;
+      const videoShareInstagramBtn = document.getElementById("video-share-instagram-btn")!;
+      const videoShareTiktokBtn = document.getElementById("video-share-tiktok-btn")!;
+      const videoShareWhatsappBtn = document.getElementById("video-share-whatsapp-btn")!;
+
+      let selectedSong: Song | null = null;
+      let currentBlob: Blob | null = null;
+
+      function show(el: HTMLElement) { el.classList.remove("hidden"); }
+      function hide(el: HTMLElement) { el.classList.add("hidden"); }
+
+      function highRes(url: string): string {
+        return url.replace(/\d+x\d+bb/, '600x600bb');
+      }
+
+      function proxyUrl(url: string): string {
+        return `/api/proxy-image?url=${encodeURIComponent(highRes(url))}`;
+      }
+
+      // Difumina el cover en un canvas y devuelve un data URL. Hornear el blur en
+      // pixeles hace que se vea en cualquier navegador (Safari no aplica
+      // filter: blur() en el render client-side de Remotion).
+      async function makeBlurredBackground(src: string): Promise<string | undefined> {
+        try {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = () => reject(new Error("img load failed"));
+            img.src = src;
+          });
+
+          const W = 540, H = 960; // mitad de 1080x1920: suficiente para un fondo borroso
+          const canvas = document.createElement("canvas");
+          canvas.width = W;
+          canvas.height = H;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return undefined;
+
+          // Overscan para que el blur no deje bordes transparentes.
+          const scale = Math.max(W / img.width, H / img.height) * 1.3;
+          const dw = img.width * scale;
+          const dh = img.height * scale;
+          ctx.filter = "blur(36px) brightness(0.32) saturate(1.4)";
+          ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+
+          return canvas.toDataURL("image/jpeg", 0.82);
+        } catch {
+          return undefined;
+        }
+      }
+
+      searchForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const term = songInput.value.trim();
+        if (!term) return;
+        hide(songResults);
+        hide(searchError);
+        show(searchLoading);
+        songResults.innerHTML = "";
+
+        try {
+          const res = await fetch(`/api/itunes?action=search&term=${encodeURIComponent(term)}&entity=song&limit=10&country=us`);
+          const data = await res.json();
+          const songs: Song[] = ((data.results ?? []) as any[]).filter(r => r.wrapperType === 'track' && r.kind === 'song') as Song[];
+          hide(searchLoading);
+
+          if (songs.length === 0) {
+            searchError.textContent = "No se encontró esa canción. Prueba con otro nombre.";
+            show(searchError);
+            return;
+          }
+
+          songs.forEach(song => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-offset hover:bg-offset/40 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none transition text-left";
+            btn.innerHTML = `
+              <img src="${highRes(song.artworkUrl100)}" alt="" class="size-12 rounded object-cover shrink-0" width="48" height="48" loading="lazy" />
+              <div class="min-w-0">
+                <div class="font-semibold text-default text-base truncate">${song.trackName}</div>
+                <div class="text-offset text-base truncate">${song.artistName} · ${song.collectionName}</div>
+              </div>`;
+            btn.addEventListener("click", () => selectSong(song));
+            songResults.appendChild(btn);
+          });
+
+          show(songResults);
+        } catch {
+          hide(searchLoading);
+          searchError.textContent = "Error al buscar. Revisa tu conexión e intenta de nuevo.";
+          show(searchError);
+        }
+      });
+
+      function selectSong(song: Song) {
+        selectedSong = song;
+        selectedCover.src = highRes(song.artworkUrl100);
+        selectedCover.alt = song.collectionName;
+        selectedTitle.textContent = song.trackName;
+        selectedArtist.textContent = song.artistName;
+        selectedAlbum.textContent = song.collectionName;
+
+        hide(videoIdle);
+        hide(videoLoading);
+        hide(videoError);
+        hide(videoResult);
+        show(videoIdle);
+        hide(videoShareInstagramBtn);
+        hide(videoShareTiktokBtn);
+        hide(videoShareWhatsappBtn);
+        currentBlob = null;
+
+        stepSearch.classList.add("hidden");
+        stepResult.classList.remove("hidden");
+        generateVideo();
+      }
+
+      backToSearch.addEventListener("click", () => {
+        stepResult.classList.add("hidden");
+        stepSearch.classList.remove("hidden");
+      });
+
+      async function generateVideo() {
+        if (!selectedSong) return;
+        hide(videoIdle);
+        hide(videoError);
+        hide(videoResult);
+        show(videoLoading);
+        const startedAt = performance.now();
+        try {
+          const { renderFavoriteSongVideoClientSide } = await import("~/lib/favorite-song/render-client");
+          const proxiedCover = proxyUrl(selectedSong.artworkUrl100);
+          const blurredBackground = await makeBlurredBackground(proxiedCover);
+          const blob = await renderFavoriteSongVideoClientSide({
+            songTitle: selectedSong.trackName,
+            artistName: selectedSong.artistName,
+            albumCover: proxiedCover,
+            previewUrl: selectedSong.previewUrl || undefined,
+            blurredBackground,
+          });
+          const elapsed = ((performance.now() - startedAt) / 1000).toFixed(2);
+          currentBlob = blob;
+          const blobUrl = URL.createObjectURL(blob);
+          videoPlayer.src = blobUrl;
+          videoDownloadLink.href = blobUrl;
+          videoDownloadLink.download = "mi-cancion-artefisual.mp4";
+          const file = new File([blob], "mi-cancion-artefisual.mp4", { type: "video/mp4" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            show(videoShareInstagramBtn);
+            show(videoShareTiktokBtn);
+            show(videoShareWhatsappBtn);
+          }
+          hide(videoLoading);
+          show(videoResult);
+          videoTimingText.textContent = `Generado en ${elapsed}s`;
+        } catch (err) {
+          hide(videoLoading);
+          show(videoError);
+          videoErrorText.textContent = err instanceof Error ? err.message : "No se pudo generar el video.";
+        }
+      }
+
+      async function shareVideo() {
+        if (!currentBlob) return;
+        const file = new File([currentBlob], "mi-cancion-artefisual.mp4", { type: "video/mp4" });
+        try { await navigator.share({ files: [file], title: `Mi canción favorita: ${selectedSong?.trackName}` }); } catch { }
+      }
+
+      generateVideoBtn.addEventListener("click", generateVideo);
+      videoRetryBtn.addEventListener("click", generateVideo);
+      videoShareInstagramBtn.addEventListener("click", shareVideo);
+      videoShareTiktokBtn.addEventListener("click", shareVideo);
+      videoShareWhatsappBtn.addEventListener("click", shareVideo);
+    </script>
+  <script>
+      const tap = new Audio("/tap_sound.mp3");
+      tap.volume = 0.5;
+      document.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("a, button, summary, [role='button']")) {
+          tap.currentTime = 0;
+          tap.play().catch(() => {});
+        }
+      });
+    </script>
+  </body>
+</html>
