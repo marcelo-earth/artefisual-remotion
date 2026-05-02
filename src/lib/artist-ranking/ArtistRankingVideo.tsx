@@ -144,7 +144,7 @@ const RankingReveal = ({
           textAlign: "center",
           lineHeight: 1.1,
           maxWidth: "92%",
-          marginBottom: "56px",
+          marginBottom: "52px",
           opacity: headerEntrance,
           textShadow: "0 2px 18px rgba(0,0,0,0.8)",
         }}
