@@ -129,7 +129,7 @@ const RankingReveal = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "96px 64px",
+        padding: "100px 64px",
       }}
     >
       <Img
