@@ -95,7 +95,7 @@ export const PolaroidPhotoVideo = ({ photoDataUrl, caption }: Props) => {
             transform: `translateY(${translateY}px) rotate(${rotation + sway}deg)`,
             opacity: polaroidOpacity,
             boxShadow: "0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)",
-            width: "520px",
+            width: "500px",
           }}
         >
           <Img
