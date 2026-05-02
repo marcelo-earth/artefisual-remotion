@@ -101,7 +101,7 @@ const SongReveal = ({
           height: "360px",
           borderRadius: "16px",
           objectFit: "cover",
-          boxShadow: "0 36px 100px rgba(0,0,0,0.7)",
+          boxShadow: "0 32px 100px rgba(0,0,0,0.7)",
           marginBottom: "56px",
           opacity: coverEntrance,
           transform: `scale(${coverScale})`,
