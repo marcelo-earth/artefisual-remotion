@@ -5,7 +5,7 @@ import vercel from "@astrojs/vercel";
 
 export default defineConfig({
   site: "https://artefisual.com/",
-  integrations: [tailwind(), icon()],
+  integrations: [icon(), tailwind()],
   adapter: vercel({
     webAnalytics: {
       enabled: true,
