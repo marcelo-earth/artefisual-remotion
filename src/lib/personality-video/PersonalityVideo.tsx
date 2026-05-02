@@ -69,7 +69,7 @@ export const PersonalityVideo = ({
     >
       <div
         style={{
-          fontSize: "3.2rem",
+          fontSize: "3rem",
           fontWeight: 600,
           color: "rgba(255,255,255,0.6)",
           marginBottom: "0.6rem",
