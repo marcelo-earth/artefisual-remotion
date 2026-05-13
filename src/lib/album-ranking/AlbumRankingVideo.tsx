@@ -139,7 +139,7 @@ const RankingReveal = ({
           height: "260px",
           borderRadius: "12px",
           objectFit: "cover",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.75)",
+          boxShadow: "0 28px 90px rgba(0,0,0,0.75)",
           marginBottom: "24px",
           opacity: headerEntrance,
           transform: `scale(${coverScale})`,
