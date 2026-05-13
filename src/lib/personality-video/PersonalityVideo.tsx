@@ -64,7 +64,7 @@ export const PersonalityVideo = ({
         justifyContent: "center",
         fontFamily: "Plus Jakarta Sans, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
         opacity: entrance,
-        padding: "0 85px",
+        padding: "0 90px",
       }}
     >
       <div
